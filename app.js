@@ -14,9 +14,24 @@ const Player = require("./models/Player");
 
 const lobby = new Lobby();
 
+function wait(duration) {
+    return new Promise((resolve) => {
+        setTimeout(resolve, duration*1000);
+    });
+}
+
+async function startCountdown(duration) {
+    for (let i = duration; i > 0; i--) {
+        io.emit("notify", `Starting in ${i}`);
+        await wait(1);
+    }
+}
+
 io.on("connection", (socket) => {
     const newPlayer = new Player(socket.id, randomInt(999999, 9999999));
     lobby.addPlayer(newPlayer);
+
+    newPlayer.status = lobby.round == 0 ? 2 : 0;
     
     socket.emit("getPlayers", lobby.players);
     socket.broadcast.emit("playerAdded", lobby.players, newPlayer);
@@ -25,13 +40,12 @@ io.on("connection", (socket) => {
         if (lobby.players.length >= 3) {
             lobby.round = 1;
             io.emit("notify", "Game starting soon...");
-            setTimeout(() => {
-                for (let i=10;i>0;i--) {
-                    setTimeout(() => {
-                        io.emit("notify", "Starting in " + i);
-                    }, (10 - i) * 1000);
-                }
-            }, 3000);
+            
+            wait(1)
+                .then(() => startCountdown(10))
+                .then(() => {
+                    io.emit("notify", "Game started");
+                });
         }
     }
 
@@ -42,6 +56,12 @@ io.on("connection", (socket) => {
     socket.on("disconnecting", () => {
         lobby.removePlayer(newPlayer.id);
         socket.broadcast.emit("playerRemoved", lobby.players, newPlayer)
+
+        if (lobby.round != 0 && lobby.getPlayingPlayers().length < 2) {
+            // 1 player remaining; stop the game
+            lobby.round = 0;
+            io.emit("notify", "Game finished");
+        }
     });
 });
 

@@ -5,6 +5,16 @@ class Lobby {
         this.round = 0;
     }
 
+    getPlayingPlayers() {
+        const playing = [];
+        this.players.forEach(player => {
+            if (player.status == 2) {
+                playing.push(player);
+            }
+        });
+        return playing;
+    }
+
     addPlayer(player) {
         this.players.push(player);
     }
