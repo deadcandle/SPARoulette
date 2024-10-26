@@ -1,10 +1,11 @@
-const { startCountdown, wait } = require("../utils");
+const { wait } = require("../utils");
 
 class Lobby {
     constructor() {
         this.players = [];
         this.turn = null;
         this.round = 0;
+        this.countdown = false;
     }
 
     resetGame() {
@@ -25,25 +26,46 @@ class Lobby {
         this.players = this.players.filter(player => player.id !== playerId);
     }
 
+    async startCountdown(duration, io) {
+        this.countdown = true;
+
+        await wait(1);
+
+        for (let i = duration; i > 0; i--) {
+            io.emit("notify", `Starting in ${i}`);
+            await wait(1);
+
+            if (this.getPlayingPlayers().length < 2) {
+                io.emit("notify", "Game finished"); // Gebruik "Game finished" melding hier
+                this.countdown = false;
+                this.round = 0;
+                return;
+            }
+        }
+        this.countdown = false;
+        io.emit("notify", "Game started");
+    }
+
     startGame(io) {
+        if (this.getPlayingPlayers().length < 2 || this.countdown) return;
         this.round = 1;
         io.emit("notify", "Starting game soon...");
-        return startCountdown(10, io).then(() => io.emit("notify", "Game started"));
+        return this.startCountdown(10, io);
     }
 
     async resetGameIfNeeded(io) {
         if (this.round !== 0 && this.getPlayingPlayers().length < 2) {
             this.round = 0;
-            io.emit("notify", "Game finished");
+            this.countdown = false;
+            
             this.resetGame();
             io.emit("getPlayers", this.players);
 
             if (this.players.length >= 3) {
                 await wait(3);
-                return this.startGame(io);
+                this.startGame(io);
             }
         }
-        return Promise.resolve();
     }
 }
 
