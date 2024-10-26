@@ -57,10 +57,28 @@ io.on("connection", (socket) => {
         lobby.removePlayer(newPlayer.id);
         socket.broadcast.emit("playerRemoved", lobby.players, newPlayer)
 
-        if (lobby.round != 0 && lobby.getPlayingPlayers().length < 2) {
+        if (lobby.round !== 0 && lobby.getPlayingPlayers().length < 2) {
             // 1 player remaining; stop the game
             lobby.round = 0;
             io.emit("notify", "Game finished");
+            wait(1)
+                .then(() => {
+                    lobby.resetGame();
+                    io.emit("getPlayers", lobby.players);
+                })
+                .then(() => wait(1))
+                .then(() => {
+                    if (lobby.players.length >= 3) {
+                        lobby.round = 1;
+                        io.emit("notify", "Game starting soon...");
+                        
+                        wait(1)
+                            .then(() => startCountdown(10))
+                            .then(() => {
+                                io.emit("notify", "Game started");
+                            });
+                    }
+                })
         }
     });
 });

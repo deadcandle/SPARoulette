@@ -5,6 +5,12 @@ class Lobby {
         this.round = 0;
     }
 
+    resetGame() {
+        this.players.forEach(player => {
+            player.status = 2;
+        });
+    }
+
     getPlayingPlayers() {
         const playing = [];
         this.players.forEach(player => {
