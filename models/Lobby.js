@@ -1,3 +1,5 @@
+const { startCountdown } = require("../utils");
+
 class Lobby {
     constructor() {
         this.players = [];
@@ -12,13 +14,7 @@ class Lobby {
     }
 
     getPlayingPlayers() {
-        const playing = [];
-        this.players.forEach(player => {
-            if (player.status == 2) {
-                playing.push(player);
-            }
-        });
-        return playing;
+        return this.players.filter(player => player.status === 2);
     }
 
     addPlayer(player) {
@@ -27,6 +23,26 @@ class Lobby {
 
     removePlayer(playerId) {
         this.players = this.players.filter(player => player.id !== playerId);
+    }
+
+    startGame(io) {
+        this.round = 1;
+        io.emit("notify", "Starting game soon...");
+        return startCountdown(10, io).then(() => io.emit("notify", "Game started"));
+    }
+
+    resetGameIfNeeded(io) {
+        if (this.round !== 0 && this.getPlayingPlayers().length < 2) {
+            this.round = 0;
+            io.emit("notify", "Game finished");
+            this.resetGame();
+            io.emit("getPlayers", this.players);
+
+            if (this.players.length >= 3) {
+                return this.startGame(io);
+            }
+        }
+        return Promise.resolve();
     }
 }
 
