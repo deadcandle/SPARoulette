@@ -1,0 +1,107 @@
+html {
+  font-family: Arial;
+  background-color: black;
+  color: white;
+}
+html body {
+  margin: 0;
+  height: 100vh;
+}
+html main {
+  width: 50%;
+  min-width: 530px;
+  max-width: 700px;
+  height: 100%;
+  margin: auto;
+  position: relative;
+  padding: 15px 0;
+  box-sizing: border-box;
+}
+html main header {
+  width: -moz-fit-content;
+  width: fit-content;
+  margin: auto;
+}
+html main header h1 {
+  margin: 0;
+}
+html main .userid {
+  float: left;
+  color: #323232;
+}
+html main .money {
+  float: right;
+  color: #4e4;
+}
+html main .table {
+  border-radius: 50%;
+  width: 100%;
+  aspect-ratio: 1/1;
+  padding: 100px;
+  box-sizing: border-box;
+  position: relative;
+}
+html main .table img {
+  width: 100%;
+  border-radius: 50%;
+}
+html main .table .chair {
+  position: absolute;
+  background-color: dimgray;
+  width: 64px;
+  aspect-ratio: 1/1;
+  left: calc(50% - 32px);
+  top: calc(50% - 32px);
+}
+html main .table .chair .display {
+  position: absolute;
+  line-height: 64px;
+}
+html main .table .chair .hand {
+  position: absolute;
+  top: 50%;
+  left: -50%;
+}
+html main .controls {
+  position: absolute;
+  width: 100%;
+  top: 65px;
+  padding: 150px;
+  box-sizing: border-box;
+  opacity: 0;
+}
+html main .controls .cylinder path:not(:last-child) {
+  opacity: 0;
+  fill: gold;
+}
+html main .controls .cylinder path:not(:last-child):hover {
+  opacity: 1;
+}
+html main .controls .buttons {
+  font-size: 0;
+  margin-top: 64px;
+}
+html main .controls .buttons button {
+  background-color: #323232;
+  border: none;
+  padding: 15px;
+  color: white;
+  font: 16px Arial;
+  width: calc(50% - 5px);
+}
+html main .controls .buttons button:last-child {
+  float: right;
+}
+html main .notifications {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  text-align: center;
+}
+html main .notifications div {
+  background-color: rgba(0, 0, 0, 0.5);
+  display: inline-block;
+  margin-bottom: 15px;
+  padding: 10px;
+  transition-duration: 500ms;
+}/*# sourceMappingURL=theme.css.map */

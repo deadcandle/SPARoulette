@@ -1,0 +1,96 @@
+html {
+    font-family: Arial;
+    background-color: black;
+    color: white;
+    body { margin: 0; height: 100vh; }
+    main {
+        width: 50%;
+        min-width: 530px;
+        max-width: 700px;
+        height: 100%;
+        margin: auto;
+        position: relative;
+        padding: 15px 0;
+        box-sizing: border-box;
+
+        header {
+            width: fit-content;
+            margin: auto;
+            h1 { margin: 0; }
+        }
+        .userid { float: left; color: #323232; }
+        .money { float: right; color: #4e4; }
+
+        .table {
+            border-radius: 50%;
+            width: 100%;
+            aspect-ratio: 1/1;
+            padding: 100px;
+            box-sizing: border-box;
+            position: relative;
+            img { width: 100%; border-radius: 50%; }
+            .chair {
+                position: absolute;
+                background-color: dimgray;
+                width: 64px;
+                aspect-ratio: 1/1;
+                left: calc(50% - 32px); top: calc(50% - 32px);
+                // transform: rotate(0deg) translateX(22vw);
+                .display {
+                    position: absolute;
+                    line-height: 64px;
+                }
+                .hand {
+                    position: absolute;
+                    top: 50%;
+                    left: -50%;
+                }
+            }
+        }
+
+        .controls {
+            position: absolute;
+            width: 100%;
+            top: 65px;
+            padding: 150px;
+            box-sizing: border-box;
+            opacity: 0;
+
+            .cylinder path:not(:last-child) {
+                opacity: 0;
+                fill: gold;
+                &:hover { opacity: 1; }
+            }
+
+            .buttons {
+                font-size: 0;
+                margin-top: 64px;
+                button {
+                    background-color: #323232;
+                    border: none;
+                    padding: 15px;
+                    color: white;
+                    font: 16px Arial;
+                    width: calc(50% - 5px);
+                    &:last-child {
+                        float: right;
+                    }
+                }
+            }
+        }
+
+        .notifications {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            text-align: center;
+            div {
+                background-color: rgba(0, 0, 0, 0.5);
+                display: inline-block;
+                margin-bottom: 15px;
+                padding: 10px;
+                transition-duration: 500ms;
+            }
+        }
+    }
+}
