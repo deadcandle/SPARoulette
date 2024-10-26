@@ -1,4 +1,4 @@
-const { startCountdown } = require("../utils");
+const { startCountdown, wait } = require("../utils");
 
 class Lobby {
     constructor() {
@@ -31,7 +31,7 @@ class Lobby {
         return startCountdown(10, io).then(() => io.emit("notify", "Game started"));
     }
 
-    resetGameIfNeeded(io) {
+    async resetGameIfNeeded(io) {
         if (this.round !== 0 && this.getPlayingPlayers().length < 2) {
             this.round = 0;
             io.emit("notify", "Game finished");
@@ -39,6 +39,7 @@ class Lobby {
             io.emit("getPlayers", this.players);
 
             if (this.players.length >= 3) {
+                await wait(3);
                 return this.startGame(io);
             }
         }
