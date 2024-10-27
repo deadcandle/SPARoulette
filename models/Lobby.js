@@ -29,6 +29,36 @@ class Lobby {
         this.players = this.players.filter(player => player.id !== playerId);
     }
 
+    async nextTurn(io) {
+        const round = this.round;
+        if (round == 1) { // First round, gun should decide a starting player
+            const index = Math.floor(Math.random()*this.players.length);
+            const player = this.players[index];
+            
+            this.turn = player;
+
+            const angle = index * (360 / this.players.length);
+            
+            const timeToRespond = 1000*5
+            const options = ["spin"];
+
+                io.emit("tableSpin", angle);
+            await wait(5);
+                io.emit("notify", player.username + " will start");
+                io.emit("moveGun", player.id);
+            await wait(1);
+
+            io.to(player.id).timeout(timeToRespond).emit("turn", timeToRespond, options, (idle, response) => {
+                if (idle) {
+                    player.status = 1;
+                    io.emit("getPlayers", this.players);
+                } else {
+                    console.log("player responded:", response);
+                }
+            });
+        }
+    }
+
     async startCountdown(duration, io) {
         this.countdown = true;
     
@@ -51,11 +81,13 @@ class Lobby {
         this.round = 1;
         io.emit("notify", "Starting game soon...");
     
-        await this.startCountdown(10, io);
+        await this.startCountdown(3, io);
     
         if (this.getPlayingPlayers().length >= 2) {
             io.emit("notify", "Game started");
-            // Proceed to game logic here
+            
+            this.nextTurn(io);
+
         } else {
             this.round = 0;
             io.emit("gameEnded");

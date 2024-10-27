@@ -45,17 +45,6 @@ html main .table img {
   border-radius: 50%;
   filter: contrast(50%);
 }
-html main .table img:not(:first-child) {
-  position: absolute;
-  width: 128px;
-  height: 128px;
-  -o-object-fit: contain;
-     object-fit: contain;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  filter: contrast(125%);
-}
 html main .table .chair {
   position: absolute;
   background-color: dimgray;
@@ -115,4 +104,18 @@ html main .notifications div {
   margin-bottom: 15px;
   padding: 10px;
   transition-duration: 500ms;
+}
+
+#gun {
+  position: absolute;
+  width: 128px;
+  height: 128px;
+  -o-object-fit: contain;
+     object-fit: contain;
+  left: 50%;
+  top: 50%;
+  transform-origin: 0 0;
+  transform: rotate(-3600deg) translate(-50%, -50%);
+  filter: contrast(125%);
+  transition: transform 3s ease-out, left 1s, top 1s;
 }/*# sourceMappingURL=theme.css.map */

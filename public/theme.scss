@@ -30,16 +30,6 @@ html {
             position: relative;
             img {
                 width: 100%; border-radius: 50%; filter: contrast(50%);
-                &:not(:first-child) {
-                    position: absolute;
-                    width: 128px;
-                    height: 128px;
-                    object-fit: contain;
-                    left: 50%;
-                    top: 50%;
-                    transform: translate(-50%, -50%);
-                    filter: contrast(125%);
-                }
             }
             .chair {
                 position: absolute;
@@ -105,4 +95,16 @@ html {
             }
         }
     }
+}
+#gun {
+    position: absolute;
+    width: 128px;
+    height: 128px;
+    object-fit: contain;
+    left: 50%;
+    top: 50%;
+    transform-origin: 0 0;
+    transform: rotate(calc(-3600deg)) translate(-50%, -50%);
+    filter: contrast(125%);
+    transition: transform 3s ease-out, left 1s, top 1s;
 }
