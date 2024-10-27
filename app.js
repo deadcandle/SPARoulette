@@ -16,11 +16,12 @@ const Player = require("./models/Player");
 const lobby = new Lobby();
 
 io.on("connection", (socket) => {
-    const newPlayer = new Player(socket.id, randomInt(999999, 9999999));
+    const status = lobby.round == 0 ? 2 : 0;
+    const newPlayer = new Player(socket.id, `Player_${randomInt(999, 9999)}`);
+    newPlayer.status = status;
+
     lobby.addPlayer(newPlayer);
 
-    newPlayer.status = lobby.round == 0 ? 2 : 0;
-    
     socket.emit("getPlayers", lobby.players);
     socket.broadcast.emit("playerAdded", lobby.players, newPlayer);
 
