@@ -6,6 +6,9 @@ class Lobby {
         this.turn = null;
         this.round = 0;
         this.countdown = false;
+        this.bulletPosition = null;
+        this.currentChamber = 1;
+        this.chamberSize = 5;
     }
 
     resetGame() {
@@ -31,7 +34,6 @@ class Lobby {
     
         for (let i = duration; i > 0; i--) {
             if (this.getPlayingPlayers().length < 2) {
-                // io.emit("notify", "Not enough players. Countdown stopped.");
                 this.countdown = false;
                 return;
             }
@@ -60,21 +62,20 @@ class Lobby {
         }
     }    
 
-    scheduleSpectatorsToJoin(io) {
-        setTimeout(() => {
-            this.players.forEach(player => {
-                if (player.status === 0) { // Spectator
-                    player.status = 2; // Convert to playing
-                }
-            });
-    
-            io.emit("getPlayers", this.players);
-    
-            // Check if we now have enough players to start the game
-            if (this.getPlayingPlayers().length >= 3 && this.round === 0 && !this.countdown) {
-                this.startGame(io);
+    async scheduleSpectatorsToJoin(io) {
+        await wait(3);
+        
+        this.players.forEach(player => {
+            if (player.status === 0) {
+                player.status = 2;
             }
-        }, 5000);
+        });
+
+        io.emit("getPlayers", this.players);
+
+        if (this.getPlayingPlayers().length >= 3 && this.round === 0 && !this.countdown) {
+            this.startGame(io);
+        }
     }    
 
     async resetGameIfNeeded(io) {
@@ -84,8 +85,7 @@ class Lobby {
     
             io.emit("notify", "Game ended");
             io.emit("gameEnded");
-    
-            // Schedule spectators to become players after a delay
+
             this.scheduleSpectatorsToJoin(io);
         }
     }    

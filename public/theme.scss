@@ -28,7 +28,19 @@ html {
             padding: 100px;
             box-sizing: border-box;
             position: relative;
-            img { width: 100%; border-radius: 50%; }
+            img {
+                width: 100%; border-radius: 50%; filter: contrast(50%);
+                &:not(:first-child) {
+                    position: absolute;
+                    width: 128px;
+                    height: 128px;
+                    object-fit: contain;
+                    left: 50%;
+                    top: 50%;
+                    transform: translate(-50%, -50%);
+                    filter: contrast(125%);
+                }
+            }
             .chair {
                 position: absolute;
                 background-color: dimgray;
