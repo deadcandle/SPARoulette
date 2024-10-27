@@ -56,15 +56,18 @@ html {
             top: 65px;
             padding: 150px;
             box-sizing: border-box;
-            opacity: 0;
 
-            .cylinder path:not(:last-child) {
+            .cylinder {
                 opacity: 0;
-                fill: gold;
-                &:hover { opacity: 1; }
+                path:not(:last-child) {
+                    opacity: 0;
+                    fill: gold;
+                    &:hover { opacity: 1; }
+                }
             }
 
             .buttons {
+                opacity: 0;
                 font-size: 0;
                 margin-top: 64px;
                 button {
@@ -106,5 +109,15 @@ html {
     transform-origin: 0 0;
     transform: rotate(calc(-3600deg)) translate(-50%, -50%);
     filter: contrast(125%);
-    transition: transform 3s ease-out, left 1s, top 1s;
+    transition: transform 5s ease-out, left 1s, top 1s;
+}
+progress {
+    position: absolute;
+    bottom: 0;
+    border-radius: 0;
+    height: 8px;
+    width: 100%;
+    box-sizing: border-box;
+    border: 0;
+    background-color: black;
 }

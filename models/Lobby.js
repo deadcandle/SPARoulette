@@ -11,14 +11,8 @@ class Lobby {
         this.chamberSize = 5;
     }
 
-    resetGame() {
-        this.players.forEach(player => {
-            player.status = 2;
-        });
-    }
-
     getPlayingPlayers() {
-        return this.players.filter(player => player.status === 2);
+        return this.players.filter(player => player.status !== 0);
     }
 
     addPlayer(player) {
@@ -32,23 +26,26 @@ class Lobby {
     async nextTurn(io) {
         const round = this.round;
         if (round == 1) { // First round, gun should decide a starting player
-            const index = Math.floor(Math.random()*this.players.length);
-            const player = this.players[index];
+            const playing = this.getPlayingPlayers();
+            const index = Math.floor(Math.random()*playing.length);
+            const player = playing[index];
             
             this.turn = player;
 
             const angle = index * (360 / this.players.length);
             
-            const timeToRespond = 1000*5
-            const options = ["spin"];
+            const timeToRespond = 1000*8;
 
-                io.emit("tableSpin", angle);
+            io.emit("tableSpin", angle);
+            
             await wait(5);
-                io.emit("notify", player.username + " will start");
-                io.emit("moveGun", player.id);
+            
+            io.emit("notify", player.username + " will start");
+            io.emit("moveGun", player.id);
+            
             await wait(1);
 
-            io.to(player.id).timeout(timeToRespond).emit("turn", timeToRespond, options, (idle, response) => {
+            io.to(player.id).timeout(timeToRespond).emit("turn", timeToRespond, "loadGun", (idle, response) => {
                 if (idle) {
                     player.status = 1;
                     io.emit("getPlayers", this.players);
@@ -81,13 +78,12 @@ class Lobby {
         this.round = 1;
         io.emit("notify", "Starting game soon...");
     
+        await wait(1);
         await this.startCountdown(3, io);
     
         if (this.getPlayingPlayers().length >= 2) {
             io.emit("notify", "Game started");
-            
             this.nextTurn(io);
-
         } else {
             this.round = 0;
             io.emit("gameEnded");
@@ -98,9 +94,7 @@ class Lobby {
         await wait(3);
         
         this.players.forEach(player => {
-            if (player.status === 0) {
-                player.status = 2;
-            }
+            player.status = 2;
         });
 
         io.emit("getPlayers", this.players);

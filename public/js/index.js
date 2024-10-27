@@ -1,5 +1,6 @@
 import { drawPlayers, tableSpin, moveGun } from "./table.js";
 import { notify } from "./notification.js";
+import { handleTurn } from "./turn.js";
 
 const socket = io();
 
@@ -16,6 +17,4 @@ socket.on("notify", (message) => { notify(message); });
 socket.on("tableSpin", (angle) => { tableSpin(angle); });
 socket.on("moveGun", (playerid) => { moveGun(playerid); })
 
-socket.on("turn", (timeToRespond, options, callback) => {
-    // callback("spin");
-});
+socket.on("turn", (timeToRespond, options, callback) => { handleTurn(timeToRespond, options, callback); });

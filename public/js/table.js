@@ -45,7 +45,8 @@ export function tableSpin(angle) {
 }
 
 export function moveGun(playerid) {
-    const hand = table.querySelector("#" + playerid).querySelector(".hand");
+    const hand = document.getElementById(playerid).querySelector(".hand");
     gun.style.left = hand.getBoundingClientRect().x + hand.getBoundingClientRect().width/2 + "px";
     gun.style.top = hand.getBoundingClientRect().y + hand.getBoundingClientRect().height/2 + "px";
+    gun.style.transform = `rotate(-3600deg)) translate(-50%, -50%)`;
 }

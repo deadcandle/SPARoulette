@@ -68,6 +68,8 @@ html main .controls {
   top: 65px;
   padding: 150px;
   box-sizing: border-box;
+}
+html main .controls .cylinder {
   opacity: 0;
 }
 html main .controls .cylinder path:not(:last-child) {
@@ -78,6 +80,7 @@ html main .controls .cylinder path:not(:last-child):hover {
   opacity: 1;
 }
 html main .controls .buttons {
+  opacity: 0;
   font-size: 0;
   margin-top: 64px;
 }
@@ -117,5 +120,16 @@ html main .notifications div {
   transform-origin: 0 0;
   transform: rotate(-3600deg) translate(-50%, -50%);
   filter: contrast(125%);
-  transition: transform 3s ease-out, left 1s, top 1s;
+  transition: transform 5s ease-out, left 1s, top 1s;
+}
+
+progress {
+  position: absolute;
+  bottom: 0;
+  border-radius: 0;
+  height: 8px;
+  width: 100%;
+  box-sizing: border-box;
+  border: 0;
+  background-color: black;
 }/*# sourceMappingURL=theme.css.map */
