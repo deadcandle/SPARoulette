@@ -32,7 +32,7 @@ io.on("connection", (socket) => {
     socket.on("getPlayers", (callback) => callback(lobby.players));
 
     socket.on("disconnecting", () => {
-        lobby.removePlayer(newPlayer.id);
+        lobby.removePlayer(newPlayer.id, io);
         socket.broadcast.emit("playerRemoved", lobby.players, newPlayer);
         lobby.resetGameIfNeeded(io);
     });

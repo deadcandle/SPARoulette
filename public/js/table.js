@@ -13,12 +13,15 @@ export function drawPlayers(players) {
     
     players.forEach((player, i) => {
         const chair = document.createElement("div");
+        const chairVisual = document.createElement("img");
         const hand = document.createElement("div");
         const display = document.createElement("div");
+        
+        chairVisual.src = "/chair.svg";
 
         chair.className = "chair";
         chair.id = player.id
-        chair.style.transform = `rotate(${i * (360 / totalPlayers)}deg) translateX(20vw)`;
+        chair.style.transform = `rotate(${i * (360 / totalPlayers)}deg) translateX(22vw)`;
 
         if (player.status == 0) { // spectating
             chair.style.opacity = .25;
@@ -34,6 +37,7 @@ export function drawPlayers(players) {
 
         chair.appendChild(hand);
         chair.appendChild(display);
+        chair.appendChild(chairVisual);
         table.appendChild(chair);
     });
 }

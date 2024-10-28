@@ -1,1 +1,3 @@
 - Player couldn't handle the stress when idle (for multiple rounds)
+- wins stat label
+- io.emit("notify", player.username + " is safe for now"); vervangen voor rng (met of zonder de username)

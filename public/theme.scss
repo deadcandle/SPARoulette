@@ -28,24 +28,29 @@ html {
             padding: 100px;
             box-sizing: border-box;
             position: relative;
-            img {
-                width: 100%; border-radius: 50%; filter: contrast(50%);
+            transition: filter 1s;
+            & > img {
+                width: 100%;
+                border-radius: 50%;
             }
             .chair {
                 position: absolute;
-                background-color: dimgray;
-                width: 64px;
+                width: 128px;
                 aspect-ratio: 1/1;
-                left: calc(50% - 32px); top: calc(50% - 32px);
-                // transform: rotate(0deg) translateX(22vw);
+                left: calc(50% - 64px); top: calc(50% - 64px);
+                img {
+                    height: 100%;
+                }
                 .display {
+                    z-index: 10;
                     position: absolute;
-                    line-height: 64px;
+                    line-height: 128px;
+                    color: white;
                 }
                 .hand {
                     position: absolute;
                     top: 50%;
-                    left: -50%;
+                    left: -100%;
                 }
             }
         }
@@ -60,6 +65,7 @@ html {
 
             .cylinder {
                 opacity: 0;
+                transition: opacity 1s;
                 path:not(:last-child) {
                     opacity: 0;
                     fill: gold;
@@ -69,6 +75,7 @@ html {
 
             .buttons {
                 opacity: 0;
+                transition: opacity 1s;
                 font-size: 0;
                 margin-top: 64px;
                 button {
