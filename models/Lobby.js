@@ -1,18 +1,28 @@
 const { wait } = require("../utils");
 
+const TURN_TYPES = {
+    LOAD: "loadGun",
+    SHOOT: "spinOrShootGun"
+}
+
 class Lobby {
     constructor() {
         this.players = [];
         this.turn = null;
         this.round = 0;
         this.countdown = false;
-        this.bulletPosition = null;
+        this.bulletPosition;
         this.currentChamber = 1;
         this.chamberSize = 5;
+        this.turnType = null;
     }
 
     getPlayingPlayers() {
         return this.players.filter(player => player.status !== 0);
+    }
+
+    getAlivePlayers() {
+        return this.players.filter(player => player.status === 2);
     }
 
     addPlayer(player) {
@@ -23,39 +33,125 @@ class Lobby {
         this.players = this.players.filter(player => player.id !== playerId);
     }
 
-    async nextTurn(io) {
-        const round = this.round;
-        if (round == 1) { // First round, gun should decide a starting player
-            const playing = this.getPlayingPlayers();
-            const index = Math.floor(Math.random()*playing.length);
-            const player = playing[index];
-            
-            this.turn = player;
-
-            const angle = index * (360 / this.players.length);
-            
-            const timeToRespond = 1000*8;
-
-            io.emit("tableSpin", angle);
-            
-            await wait(5);
-            
-            io.emit("notify", player.username + " will start");
-            io.emit("moveGun", player.id);
-            
-            await wait(1);
-
-            io.to(player.id).timeout(timeToRespond).emit("turn", timeToRespond, "loadGun", (idle, response) => {
-                if (idle) {
-                    player.status = 1;
-                    io.emit("getPlayers", this.players);
-                } else {
-                    console.log("player responded:", response);
-                }
-            });
+    pullTrigger(spinBeforeShoot) {
+        const bulletPosition = this.bulletPosition;
+        const currentChamber = this.currentChamber;
+        if (spinBeforeShoot) {
+            this.currentChamber = Math.floor(Math.random()*this.chamberSize) + 1;
+            return bulletPosition === currentChamber;
         }
+        this.currentChamber = (currentChamber % this.chamberSize) + 1;
+        return bulletPosition === currentChamber;
     }
 
+    async nextTurn(io) {
+        const round = this.round;
+        const playing = this.getAlivePlayers();
+    
+        if (playing.length === 1) {
+            io.emit("notify", playing[0].username + " won the game");
+            this.round = 0;
+            this.countdown = false;
+            io.emit("gameEnded");
+            this.scheduleSpectatorsToJoin(io);
+            return;
+        }
+    
+        let player = playing[round % playing.length];
+        let angle = round * (360 / this.players.length);
+        const timeToRespond = 1000 * 8;
+    
+        if (round === 1) {
+            const index = Math.floor(Math.random() * playing.length);
+            angle = index * (360 / this.players.length);
+            player = playing[index];
+    
+            io.emit("tableSpin", angle);
+            await wait(5);
+            io.emit("notify", player.username + " will start");
+            this.turnType = TURN_TYPES.LOAD;
+        } else {
+            io.emit("notify", player.username + " turn");
+        }
+    
+        this.turn = player;
+        io.emit("moveGun", player.id);
+        await wait(1);
+    
+        console.log("--------------------");
+        console.log("Round: ", round);
+        // console.log("Turn type: ", this.turnType);
+        console.log("Current chamber: ", this.currentChamber);
+        console.log("Bullet position: ", this.bulletPosition);
+    
+        io.to(player.id).timeout(timeToRespond).emit("turn", timeToRespond, this.turnType, async (err, responses) => {
+            if (err) {
+                // Handle timeout
+                switch (this.turnType) {
+                    case TURN_TYPES.SHOOT:
+                        if (this.pullTrigger()) {
+                            io.emit("notify", player.username + " is dead");
+                            player.status = 1;
+                            this.turnType = TURN_TYPES.LOAD;
+                            io.emit("getPlayers", this.players);
+                        } else {
+                            this.turnType = TURN_TYPES.SHOOT;
+                            io.emit("notify", player.username + " is safe for now");
+                        }
+                        await wait(1);
+                        break;
+                    case TURN_TYPES.LOAD:
+                        this.bulletPosition = Math.floor(Math.random() * this.chamberSize) + 1;
+                        io.emit("notify", player.username + " loaded the gun");
+                        this.turnType = TURN_TYPES.SHOOT;
+                        await wait(1);
+                        break;
+                }
+            } else {
+                // Extract the actual response from the responses array
+                const response = responses[0];
+    
+                switch (this.turnType) {
+                    case TURN_TYPES.SHOOT:
+                        if (response) {
+                            io.emit("notify", player.username + " is spinning the gun");
+                            await wait(1);
+                            if (this.pullTrigger(true)) {
+                                io.emit("notify", player.username + " is dead");
+                                player.status = 1;
+                                this.turnType = TURN_TYPES.LOAD;
+                                io.emit("getPlayers", this.players);
+                            } else {
+                                this.turnType = TURN_TYPES.SHOOT;
+                                io.emit("notify", player.username + " is safe for now");
+                            }
+                            await wait(1);
+                        } else {
+                            if (this.pullTrigger()) {
+                                io.emit("notify", player.username + " is dead");
+                                player.status = 1;
+                                this.turnType = TURN_TYPES.LOAD;
+                                io.emit("getPlayers", this.players);
+                            } else {
+                                this.turnType = TURN_TYPES.SHOOT;
+                                io.emit("notify", player.username + " is safe for now");
+                            }
+                            await wait(1);
+                        }
+                        break;
+                    case TURN_TYPES.LOAD:
+                        this.bulletPosition = response + 1;
+                        io.emit("notify", player.username + " loaded the gun");
+                        this.turnType = TURN_TYPES.SHOOT;
+                        await wait(1);
+                        break;
+                }
+            }
+            this.round++;
+            this.nextTurn(io);
+        });
+    }
+    
     async startCountdown(duration, io) {
         this.countdown = true;
     

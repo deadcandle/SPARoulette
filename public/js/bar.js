@@ -1,4 +1,5 @@
 const progBar = document.getElementById("progbar");
+let isCancelled = false;
 
 function wait(duration) {
     return new Promise((resolve) => {
@@ -7,9 +8,16 @@ function wait(duration) {
 }
 
 export async function startBar(duration) {
+    isCancelled = false;
     progBar.value = 1;
-    for (let i = duration*2; i >= 0; i--) {
-        progBar.value = i/duration;
-        await wait(1)
+    for (let i = duration; i >= 0; i--) {
+        if (isCancelled) break;
+        progBar.value = i / duration;
+        await wait(1);
     }
+}
+
+export async function cancelBar() {
+    isCancelled = true;
+    progBar.value = 0;
 }

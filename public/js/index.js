@@ -17,4 +17,4 @@ socket.on("notify", (message) => { notify(message); });
 socket.on("tableSpin", (angle) => { tableSpin(angle); });
 socket.on("moveGun", (playerid) => { moveGun(playerid); })
 
-socket.on("turn", (timeToRespond, options, callback) => { handleTurn(timeToRespond, options, callback); });
+socket.on("turn", (timeToRespond, action, callback) => { handleTurn(timeToRespond, action, callback); });

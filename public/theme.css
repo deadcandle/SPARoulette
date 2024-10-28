@@ -68,6 +68,7 @@ html main .controls {
   top: 65px;
   padding: 150px;
   box-sizing: border-box;
+  z-index: 100;
 }
 html main .controls .cylinder {
   opacity: 0;
