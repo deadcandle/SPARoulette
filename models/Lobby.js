@@ -32,6 +32,7 @@ class Lobby {
     removePlayer(playerId, io) {
         this.players = this.players.filter(player => player.id !== playerId);
         this.turnType = TURN_TYPES.LOAD;
+
         this.nextTurn(io);
     }
 
@@ -68,7 +69,6 @@ class Lobby {
             angle = index * (360 / this.players.length);
             player = playing[index];
     
-            
             io.emit("tableSpin", angle);
             await wait(5);
             io.emit("notify", player.username + " will start");
@@ -93,18 +93,21 @@ class Lobby {
                 switch (this.turnType) {
                     case TURN_TYPES.SHOOT:
                         if (this.pullTrigger()) {
-                            io.emit("notify", player.username + " is dead");
+                            io.emit("playSound", "fire");
+                            io.emit("notify", player.username + " is dead, " + playing.length - 1 + " players remaining");
                             player.status = 1;
                             this.turnType = TURN_TYPES.LOAD;
                             io.emit("getPlayers", this.players);
                         } else {
                             this.turnType = TURN_TYPES.SHOOT;
+                            io.emit("playSound", "click");
                             io.emit("notify", player.username + " has survived");
                         }
                         await wait(1);
                         break;
                     case TURN_TYPES.LOAD:
                         this.bulletPosition = Math.floor(Math.random() * this.chamberSize) + 1;
+                        io.emit("playSound", "spin");
                         io.emit("notify", player.username + " loaded the gun");
                         this.turnType = TURN_TYPES.SHOOT;
                         await wait(1);
@@ -117,26 +120,31 @@ class Lobby {
                 switch (this.turnType) {
                     case TURN_TYPES.SHOOT:
                         if (response) {
+                            io.emit("playSound", "spin");
                             io.emit("notify", player.username + " is spinning the gun");
                             await wait(1);
                             if (this.pullTrigger(true)) {
+                                io.emit("playSound", "fire");
                                 io.emit("notify", player.username + " is dead, " + playing.length - 1 + " players remaining");
                                 player.status = 1;
                                 this.turnType = TURN_TYPES.LOAD;
                                 io.emit("getPlayers", this.players);
                             } else {
                                 this.turnType = TURN_TYPES.SHOOT;
+                                io.emit("playSound", "click");
                                 io.emit("notify", player.username + " has survived");
                             }
                             await wait(1);
                         } else {
                             if (this.pullTrigger()) {
-                                io.emit("notify", player.username + " is dead, " + playing.length - 1 + " players players");
+                                io.emit("playSound", "fire");
+                                io.emit("notify", player.username + " is dead, " + playing.length - 1 + " players remaining");
                                 player.status = 1;
                                 this.turnType = TURN_TYPES.LOAD;
                                 io.emit("getPlayers", this.players);
                             } else {
                                 this.turnType = TURN_TYPES.SHOOT;
+                                io.emit("playSound", "click");
                                 io.emit("notify", player.username + " has survived");
                             }
                             await wait(1);
@@ -144,6 +152,7 @@ class Lobby {
                         break;
                     case TURN_TYPES.LOAD:
                         this.bulletPosition = response + 1;
+                        io.emit("playSound", "spin");
                         io.emit("notify", player.username + " loaded the gun");
                         this.turnType = TURN_TYPES.SHOOT;
                         await wait(1);
@@ -164,6 +173,7 @@ class Lobby {
                 return;
             }
     
+            io.emit("playSound", "tick");
             io.emit("notify", `Starting in ${i}`);
             await wait(1);
         }
@@ -179,9 +189,10 @@ class Lobby {
         io.emit("notify", "Starting game soon...");
     
         await wait(1);
-        await this.startCountdown(3, io);
+        await this.startCountdown(10, io);
     
         if (this.getPlayingPlayers().length >= 2) {
+            io.emit("playSound", "boom");
             io.emit("notify", "Game started");
             this.nextTurn(io);
         } else {
