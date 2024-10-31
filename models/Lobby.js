@@ -94,13 +94,15 @@ class Lobby {
                     case TURN_TYPES.SHOOT:
                         if (this.pullTrigger()) {
                             io.emit("playSound", "fire");
-                            io.emit("notify", player.username + " is dead, " + playing.length - 1 + " players remaining");
+                            await wait(1);
+                            io.emit("notify", player.username + " is dead, " + this.getAlivePlayers().length - 1 + " players remaining");
                             player.status = 1;
                             this.turnType = TURN_TYPES.LOAD;
                             io.emit("getPlayers", this.players);
                         } else {
                             this.turnType = TURN_TYPES.SHOOT;
                             io.emit("playSound", "click");
+                            await wait(1);
                             io.emit("notify", player.username + " has survived");
                         }
                         await wait(1);
@@ -108,6 +110,7 @@ class Lobby {
                     case TURN_TYPES.LOAD:
                         this.bulletPosition = Math.floor(Math.random() * this.chamberSize) + 1;
                         io.emit("playSound", "spin");
+                        await wait(1);
                         io.emit("notify", player.username + " loaded the gun");
                         this.turnType = TURN_TYPES.SHOOT;
                         await wait(1);
@@ -125,7 +128,7 @@ class Lobby {
                             await wait(1);
                             if (this.pullTrigger(true)) {
                                 io.emit("playSound", "fire");
-                                io.emit("notify", player.username + " is dead, " + playing.length - 1 + " players remaining");
+                                io.emit("notify", player.username + " is dead, " + this.getAlivePlayers().length - 1 + " players remaining");
                                 player.status = 1;
                                 this.turnType = TURN_TYPES.LOAD;
                                 io.emit("getPlayers", this.players);
@@ -138,13 +141,15 @@ class Lobby {
                         } else {
                             if (this.pullTrigger()) {
                                 io.emit("playSound", "fire");
-                                io.emit("notify", player.username + " is dead, " + playing.length - 1 + " players remaining");
+                                await wait(1);
+                                io.emit("notify", player.username + " is dead, " + this.getAlivePlayers().length - 1 + " players remaining");
                                 player.status = 1;
                                 this.turnType = TURN_TYPES.LOAD;
                                 io.emit("getPlayers", this.players);
                             } else {
                                 this.turnType = TURN_TYPES.SHOOT;
                                 io.emit("playSound", "click");
+                                await wait(1);
                                 io.emit("notify", player.username + " has survived");
                             }
                             await wait(1);
